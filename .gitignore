@@ -1,0 +1,17 @@
+# Editors
+.vscode
+.idea
+*.iml
+
+# npm
+node_modules
+
+# Generated bundle
+main.js
+*.map
+
+# Obsidian plugin data (contains the personal Jira token)
+data.json
+
+# OS files
+.DS_Store

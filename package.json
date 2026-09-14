@@ -1,0 +1,26 @@
+{
+	"name": "obsidian-influencers",
+	"version": "1.0.0",
+	"description": "Obsidian plugin for periodic Jira influencer synchronization",
+	"main": "main.js",
+	"type": "module",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc --noEmit --skipLibCheck && node esbuild.config.mjs production",
+		"test": "vitest run",
+		"version": "node version-bump.mjs && git add manifest.json versions.json"
+	},
+	"keywords": [
+		"obsidian",
+		"jira",
+		"influencers"
+	],
+	"license": "0BSD",
+	"devDependencies": {
+		"@types/node": "22.20.2",
+		"esbuild": "0.28.2",
+		"obsidian": "1.13.1",
+		"typescript": "7.0.2",
+		"vitest": "5.0.0"
+	}
+}
