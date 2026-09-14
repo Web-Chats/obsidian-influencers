@@ -1,128 +1,110 @@
 # Influencer Sync for Obsidian
 
-## English
+[Download Obsidian from the official website](https://obsidian.md/download).
 
-Influencer Sync keeps Jira influencer cards and Obsidian Markdown notes in sync.
-It downloads cards, channels, campaign memberships, comments, and the current
-AI card contract from the configured Jira API. An explicit command can send six
-approved fields and new comments back to Jira.
+Influencer Sync periodically synchronizes Jira influencer cards with Obsidian
+Markdown notes. Each card is stored in a separate
+`<influencerId> <displayName>.md` file.
 
-Every download and upload requires confirmation. Version conflicts never
-overwrite newer Jira data: the plugin refreshes the note and preserves local
-values in a separate conflict section.
+## Installation
 
-Configure the Jira API URL, a personal access token, the notes folder, and the
-sync interval in the plugin settings. The token is stored locally in Obsidian's
-plugin data. The plugin sends requests only to the configured Jira API and does
-not use telemetry, analytics, advertising, or third-party network services.
+After the plugin is available in the Obsidian Community directory:
 
-To install manually, download `main.js` and `manifest.json` from the
-[latest GitHub release](https://github.com/Web-Chats/obsidian-influencers/releases/latest)
-and place them in `<vault>/.obsidian/plugins/influencers/`.
+1. Open `Settings` → `Community plugins`.
+2. Disable restricted mode if it is enabled.
+3. Select `Browse`, find `Influencer Sync`, and select `Install`.
+4. Select `Enable`.
 
-## Русский
+For manual installation, download `main.js` and `manifest.json` from the
+[latest GitHub release](https://github.com/Web-Chats/obsidian-influencers/releases/latest),
+place them in `<vault>/.obsidian/plugins/influencers/`, and enable the plugin
+under `Community plugins`.
 
-Скачать Obsidian: [официальная страница загрузки](https://obsidian.md/download).
+## Features
 
-Плагин периодически синхронизирует карточки инфлюенсеров из Jira в Markdown-
-заметки Obsidian. Одна карточка хранится в одном файле
-`<influencerId> <displayName>.md`.
+- Downloads every page of the influencer registry, channels, campaign
+  memberships, and comments.
+- Provides separate `Download from Jira` and `Send local changes to Jira`
+  commands.
+- Requires explicit confirmation before every download and upload.
+- Uses the status bar button only to download from Jira.
+- Supports scheduled downloads from every 5 minutes; the default is 60 minutes.
+- Does not send a request when Obsidian starts. The first request occurs on the
+  schedule or when a command is run.
+- Uses read-only mode when `permissions.write` is unavailable.
+- Enables write-back by default only for the explicit upload command.
+- Protects remote changes with optimistic locking.
+- Downloads the current AI contract from Jira to `Influencers/_AI`.
 
-## Установка
+HTTP requests use Obsidian's `requestUrl`, which lets the desktop and mobile
+apps access the configured Jira API without browser CORS restrictions.
 
-После публикации в каталоге Obsidian:
+## Settings
 
-1. Откройте `Settings` → `Community plugins`.
-2. Отключите restricted mode, если он включён.
-3. Нажмите `Browse`, найдите `Influencer Sync` и нажмите `Install`.
-4. Нажмите `Enable`.
+- Jira API URL, for example
+  `https://jira.perenio.com/rest/asbis-inf/2.0`.
+- Personal access token.
+- Notes folder; the default is `Influencers`.
+- Synchronization interval in minutes.
+- Local change upload toggle.
 
-До появления плагина в каталоге скачайте `main.js` и `manifest.json` из
-[последнего GitHub Release](https://github.com/Web-Chats/obsidian-influencers/releases/latest),
-положите их в `<vault>/.obsidian/plugins/influencers/` и включите плагин в
-разделе `Community plugins`.
+The token is stored in the plugin's local `data.json`. This file is excluded
+from Git and is never written to notes.
 
-## Возможности
+## Network and privacy
 
-- загрузка всех страниц реестра, каналов, участий и комментариев;
-- отдельные команды `Influencer Sync: Download from Jira` и
-  `Influencer Sync: Send local changes to Jira`;
-- обязательное окно подтверждения направления перед каждой загрузкой и отправкой;
-- кнопка в status bar запускает только загрузку из Jira;
-- расписание от 5 минут, по умолчанию 60 минут;
-- отсутствие автоматического запроса при запуске Obsidian: первый запрос идёт
-  по расписанию или по команде;
-- read-only режим при отсутствии `permissions.write`;
-- обратная запись, включённая по умолчанию только для явной команды отправки;
-- защита от конфликтов optimistic locking.
-- загрузка актуального AI-контракта с Jira в `Influencers/_AI`.
+The plugin connects only to the Jira API URL configured by the user. During a
+download it retrieves influencer cards, comments, and the AI contract. During
+an explicit upload it sends modified allowed fields and new comments. Every
+direction requires confirmation.
 
-HTTP-запросы выполняются только через Obsidian `requestUrl`, поэтому Jira API
-доступен из Electron без CORS-ограничений.
+The personal access token is stored locally by Obsidian and is sent only to the
+configured Jira API in the authorization header. The plugin has no telemetry,
+analytics, advertising, or third-party network services.
 
-## Настройки
+## AI contract
 
-- адрес Jira API, например `https://jira.perenio.com/rest/asbis-inf/2.0`;
-- персональный access token;
-- папка заметок, по умолчанию `Influencers`;
-- интервал синхронизации в минутах;
-- переключатель отправки локальных изменений.
+During synchronization, the plugin requests
+`GET /ai/obsidian-card-contract` and saves the server-provided
+`_AI/influencer-card.schema.json` and `_AI/AI-INSTRUCTIONS.md` files in the
+cards folder. The schema is not bundled with the plugin, so Jira remains the
+single source of the current contract. The plugin verifies that the contract
+does not expand the six-field write allowlist.
 
-Токен хранится в локальном `data.json` плагина. Этот файл исключён из Git и
-никогда не записывается в заметки.
+The plugin never overwrites files without its service marker. A contract
+download failure is shown to the user but does not stop regular card
+synchronization.
 
-## Сеть и конфиденциальность
+## Note format and write-back
 
-Плагин обращается только к адресу Jira API, заданному пользователем в
-настройках. При загрузке он получает карточки, комментарии и AI-контракт; при
-явной отправке передаёт изменённые разрешённые поля и новые комментарии. Перед
-каждым направлением синхронизации требуется подтверждение.
+Frontmatter contains the influencer identifier, version, synchronization time,
+status, country, agency, ratings, campaign count, and editable fields. Exactly
+six fields can be sent to Jira:
 
-Персональный access token хранится средствами Obsidian в локальном `data.json`
-и передаётся только настроенному Jira API в заголовке авторизации. Телеметрии,
-аналитики и сторонних сетевых сервисов нет.
+- `realName`
+- `email`
+- `messenger`
+- `agencyManager`
+- `commercialOfferUrl`
+- `internalRating`
 
-## AI-контракт
+Before each `PUT`, the plugin reads the card again and builds a complete form
+using only writable contract fields. Computed fields such as `rating`,
+`campaignsCount`, `brands`, `platforms`, `followersByPlatform`,
+`accountUrlsByPlatform`, and `minimumPrice` are never included in the request.
 
-При каждой синхронизации плагин запрашивает
-`GET /ai/obsidian-card-contract` и сохраняет серверные файлы
-`_AI/influencer-card.schema.json` и `_AI/AI-INSTRUCTIONS.md` в папке карточек.
-Схема не встроена в плагин: Jira остаётся единственным источником актуального
-контракта. Плагин проверяет, что контракт не расширяет белый список шести полей.
+Text added below `<!-- comments -->` is sent as one new comment. After a
+successful `POST`, the local text is cleared immediately so that a subsequent
+read failure cannot send the same comment twice.
 
-Файлы без служебного маркера плагин не перезаписывает. Ошибка загрузки контракта
-показывается пользователю, но не останавливает обычную синхронизацию карточек.
+If the version changes before `PUT`, or Jira returns `409 VERSION_CONFLICT`,
+the plugin does not retry with the new version. It downloads the current card,
+saves it to the note, and preserves local values under
+`## Not sent (conflict)`.
 
-## Формат и обратная запись
+## Development
 
-Во frontmatter находятся идентификатор, версия, время синхронизации, статус,
-страна, агентство, рейтинги, число кампаний и редактируемые поля. В Jira можно
-отправить ровно шесть полей:
-
-- `realName`;
-- `email`;
-- `messenger`;
-- `agencyManager`;
-- `commercialOfferUrl`;
-- `internalRating`.
-
-Перед `PUT` плагин перечитывает карточку и собирает полную форму только из
-writable-полей контракта. Вычисляемые `rating`, `campaignsCount`, `brands`,
-`platforms`, `followersByPlatform`, `accountUrlsByPlatform` и `minimumPrice`
-никогда не попадают в запрос.
-
-Текст, добавленный ниже `<!-- comments -->`, отправляется одним новым
-комментарием. После успешного `POST` локальный текст сразу очищается, поэтому
-ошибка последующего чтения не приводит к повторной отправке.
-
-Если версия изменилась до `PUT` или Jira вернула `409 VERSION_CONFLICT`, плагин
-не повторяет запись с новой версией. Он загружает свежую карточку, сохраняет её
-в заметку, а локальные значения помещает в блок
-`## Не отправлено (конфликт)`.
-
-## Разработка
-
-Требуется Node.js 20 или новее.
+Node.js 20 or later is required.
 
 ```bash
 npm install
@@ -130,47 +112,45 @@ npm test
 npm run build
 ```
 
-Для локальной Jira укажите в настройках:
+For a local Jira instance, configure:
 
 ```text
 http://localhost/rest/asbis-inf/2.0
 ```
 
-Тесты не используют сеть и не требуют токен. Для ручной проверки токен можно
-взять из `INF_PAT`; не добавляйте его в исходники, команды package.json или Git.
+Tests do not use the network and do not require a token. Manual tests can read
+the token from `INF_PAT`; never add it to source files, package scripts, or Git.
 
-`npm run build` проверяет TypeScript и создаёт `main.js`. Для ручной установки
-нужны `main.js` и `manifest.json`.
+`npm run build` checks TypeScript and creates `main.js`. Manual installation
+requires `main.js` and `manifest.json`.
 
-## Ручная проверка
+## Manual verification
 
-1. Выполнить `npm install && npm run build`.
-2. Создать `<vault>/.obsidian/plugins/influencers/` и положить туда `main.js` и
-   `manifest.json`.
-3. Включить `Influencer Sync` в настройках community plugins Obsidian.
-4. Вписать адрес `/rest/asbis-inf/2.0`, персональный токен, папку и интервал.
-5. Выполнить команду `Influencer Sync: Download from Jira` или нажать status bar.
-6. Убедиться, что появились заметки с `influencerId`, `version` и `syncedAt` во
+1. Run `npm install && npm run build`.
+2. Create `<vault>/.obsidian/plugins/influencers/` and copy `main.js` and
+   `manifest.json` into it.
+3. Enable `Influencer Sync` under Obsidian Community plugins.
+4. Configure the API URL, personal token, notes folder, and interval.
+5. Run `Download from Jira` or select the status bar action.
+6. Confirm that the notes contain `influencerId`, `version`, and `syncedAt` in
    frontmatter.
-7. Включить обратную запись, дописать комментарий ниже
-   `<!-- comments -->` и выполнить команду
-   `Influencer Sync: Send local changes to Jira`.
-8. Убедиться в Jira, что комментарий появился в карточке инфлюенсера, а в
-   заметке он появился в серверной ленте только один раз.
-9. Для проверки конфликта изменить простое поле в заметке, затем изменить ту же
-   карточку в Jira и синхронизировать: свежая версия Jira должна остаться во
-   frontmatter, `PUT` не должен повториться, локальное значение должно оказаться
-   в `## Не отправлено (конфликт)`.
+7. Enable write-back, add a comment below `<!-- comments -->`, and run
+   `Send local changes to Jira`.
+8. Confirm that the comment appears once in Jira and once in the server comment
+   history in the note.
+9. To test a conflict, edit a writable field in the note, edit the same card in
+   Jira, and upload. The current Jira version must remain in frontmatter, the
+   `PUT` must not be retried, and the local value must appear under
+   `## Not sent (conflict)`.
 
-## Происхождение скелета и лицензия
+## Skeleton origin and license
 
-Структура `manifest.json`, `versions.json`, `tsconfig.json`,
-`esbuild.config.mjs` и `version-bump.mjs` адаптирована из официального
+The `manifest.json`, `versions.json`, `tsconfig.json`, `esbuild.config.mjs`, and
+`version-bump.mjs` structure is adapted from the official
 [obsidianmd/obsidian-sample-plugin](https://github.com/obsidianmd/obsidian-sample-plugin),
-лицензия 0BSD. Проект распространяется под той же лицензией, текст находится в
-`LICENSE`.
+licensed under 0BSD. This project uses the same license; see `LICENSE`.
 
-Настройка mutating-запросов Obsidian `requestUrl` (`contentType` и same-origin
-`Origin`) сверена с open-source плагином
+The Obsidian `requestUrl` configuration for mutating requests (`contentType`
+and same-origin `Origin`) was checked against the open-source
 [angelperezasenjo/obsidian-to-jira](https://github.com/angelperezasenjo/obsidian-to-jira),
-лицензия MIT.
+licensed under MIT.
