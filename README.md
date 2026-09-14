@@ -1,5 +1,27 @@
 # Influencer Sync for Obsidian
 
+## English
+
+Influencer Sync keeps Jira influencer cards and Obsidian Markdown notes in sync.
+It downloads cards, channels, campaign memberships, comments, and the current
+AI card contract from the configured Jira API. An explicit command can send six
+approved fields and new comments back to Jira.
+
+Every download and upload requires confirmation. Version conflicts never
+overwrite newer Jira data: the plugin refreshes the note and preserves local
+values in a separate conflict section.
+
+Configure the Jira API URL, a personal access token, the notes folder, and the
+sync interval in the plugin settings. The token is stored locally in Obsidian's
+plugin data. The plugin sends requests only to the configured Jira API and does
+not use telemetry, analytics, advertising, or third-party network services.
+
+To install manually, download `main.js` and `manifest.json` from the
+[latest GitHub release](https://github.com/Web-Chats/obsidian-influencers/releases/latest)
+and place them in `<vault>/.obsidian/plugins/influencers/`.
+
+## Русский
+
 Скачать Obsidian: [официальная страница загрузки](https://obsidian.md/download).
 
 Плагин периодически синхронизирует карточки инфлюенсеров из Jira в Markdown-
