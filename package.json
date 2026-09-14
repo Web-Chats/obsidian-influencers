@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-influencers",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Obsidian plugin for periodic Jira influencer synchronization",
 	"main": "main.js",
 	"type": "module",

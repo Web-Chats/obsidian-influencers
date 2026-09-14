@@ -3,7 +3,7 @@ import type InfluencerSyncPlugin from './main';
 import type { SyncSettings } from './types';
 
 export const DEFAULT_SETTINGS: SyncSettings = {
-	baseUrl: 'https://jira.perenio.com/rest/asbis-inf/2.0',
+	baseUrl: 'https://jira.example.com/rest/asbis-inf/2.0',
 	token: '',
 	folder: 'Influencers',
 	intervalMinutes: 60,

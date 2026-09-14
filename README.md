@@ -42,7 +42,7 @@ apps access the configured Jira API without browser CORS restrictions.
 ## Settings
 
 - Jira API URL, for example
-  `https://jira.perenio.com/rest/asbis-inf/2.0`.
+  `https://jira.example.com/rest/asbis-inf/2.0`.
 - Personal access token.
 - Notes folder; the default is `Influencers`.
 - Synchronization interval in minutes.
